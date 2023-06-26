@@ -1,25 +1,60 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import { Loading, Tours } from "./components";
+import { useEffect } from "react";
 
-function App() {
+const URL = "https://course-api.com/react-tours-project";
+
+const App = () => {
+  const [loading, setLoading] = useState(false);
+  const [tours, setTours] = useState([]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(URL);
+      const tours = await response.json();
+      setTours(tours);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const deleteTour = (id) => {
+    const newTours = tours.filter((tour) => tour.id !== id);
+
+    setTours(newTours);
+  };
+
+  if (loading) {
+    return (
+      <main>
+        <Loading />
+      </main>
+    );
+  }
+  if (tours.length === 0) {
+    return (
+      <main>
+        <div className="title">
+          <h2>No Tours Left</h2>
+          <button className="btn" onClick={fetchData}>
+            refresh
+          </button>
+        </div>
+      </main>
+    );
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <main>
+      <Tours tours={tours} deleteTour={deleteTour} />
+    </main>
   );
-}
+};
 
 export default App;
